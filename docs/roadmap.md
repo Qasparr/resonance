@@ -30,7 +30,11 @@ Band time-stretch adapter (real, with documented quality caveats;
 retimed stems drift from the others by design — that is the remixer's
 choice, not a bug). Honest limit, stated up front: open stem models
 separate 4–6 stems, not arbitrary individual instruments; "isolate the
-guitar from the piano" is beyond current open tooling. Skinnable UI
+guitar from the piano" is beyond current open tooling. The player
+also gets a master **BPM slider** — DJ-style whole-mix tempo control
+with pitch preserved, via the Rubber Band time-stretch adapter
+(documented quality caveats; extreme settings artifact, as with all
+time-stretching). Skinnable UI
 honoring `docs/skin-contract.md`;
 extensible through the `resonance/plugins/` hook system. Full ABC 2.1
 support in `resonance/abc/` (ties, chords, tuplets, grace notes,
@@ -81,6 +85,41 @@ visible — driven by the sample-accurate primitives already delivered
 in v0.1.0's `resonance/core/edit.py` (trim/split/splice/mix/fades/
 normalize/biquad/limiter/effects chain). The primitives are the
 v0.1.0 deliverable; the timeline UI that drives them is v0.3.0.
+
+### Pitch correction — auto-tune (v0.3.0 module, SPEC ONLY)
+
+**Purpose.** Correct off-pitch vocals/instruments, or apply the hard-tune
+effect as a creative choice.
+
+**Design.** Pitch detection (YIN/autocorrelation, CREPE-neural as an
+optional upgrade) → pitch-shift the segments toward the target scale
+via a phase-vocoder / Rubber Band adapter with formant awareness.
+Two modes: corrective (gentle, transparent) and effect (hard snap, the
+Cher/T-Pain sound — ironically the easier mode to do well).
+
+**Honest limits.** Transparent correction is genuinely hard: pushed too
+far it produces the warble and chipmunk-formant artifacts everyone
+knows. The module reports a per-segment confidence and correction
+amount so the user sees what was changed and by how much — no silent
+"enhancement."
+
+### Timing quantization — snap to grid (v0.3.0 module, SPEC ONLY)
+
+**Purpose.** Fix tempo/timing imperfections in measures, bars, and
+vocals so the result sounds crisp instead of garbled.
+
+**Design.** Transient/onset detection → map detected hits to the beat
+grid → time-slice or warp each region onto the grid (Ableton-warp /
+Recycle-slice tradition), with adjustable strength (0% = untouched,
+100% = rigid grid) so the human feel can be kept.
+
+**Honest limits.** This works well on percussive material — drums,
+rhythmic loops — where transients are sharp and sliceable. On vocals
+and sustained legato it is partial by nature: a sung phrase is not a
+drum hit, and forcing it onto a grid produces artifacts if pushed.
+Vocal timing gets onset-nudging, not sample-surgery; the strength
+slider and confidence readouts keep the user in control of the
+trade-off.
 
 ### `resonance/burn/` — disc burning and DVD-Video authoring (v0.3.0 module, SPEC ONLY)
 
