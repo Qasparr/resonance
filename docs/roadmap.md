@@ -22,9 +22,16 @@ FFT verification).
 The daily-driver suite riding on the v0.1.0 engine: cross-platform
 player (play/stream), format converter (all media types, ffmpeg-backed),
 ID3v2.4 tagging (mutagen), automatic metadata + lyrics fetching
-(LRCLIB/MusicBrainz) with karaoke display, and stem separation
-(vocal/instrumental isolation via a Demucs adapter with a documented
-honest fallback). Skinnable UI honoring `docs/skin-contract.md`;
+(LRCLIB/MusicBrainz) with karaoke display, and stem separation plus a
+stem mixer: Demucs adapter (4 stems — vocals/drums/bass/other — with a
+documented honest fallback) feeding a `StemMixer` with per-stem
+volume/mute/solo (exact, sample-true) and per-stem tempo via a Rubber
+Band time-stretch adapter (real, with documented quality caveats;
+retimed stems drift from the others by design — that is the remixer's
+choice, not a bug). Honest limit, stated up front: open stem models
+separate 4–6 stems, not arbitrary individual instruments; "isolate the
+guitar from the piano" is beyond current open tooling. Skinnable UI
+honoring `docs/skin-contract.md`;
 extensible through the `resonance/plugins/` hook system. Full ABC 2.1
 support in `resonance/abc/` (ties, chords, tuplets, grace notes,
 repeat expansion with first/second endings, multi-voice) — v0.1.0
