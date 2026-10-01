@@ -29,12 +29,19 @@ What is covered:
     raises RipBackendError naming the tool; probe_backends reports
     honestly.
   * probe_drives lists without opening (returns a list of dicts).
+  * CLI exit codes: `rip` with a missing backend exits 3 (loud
+    refusal, not a guess); `rip` with backends present exits 3 with
+    the honest "not yet implemented" message -- per-tool command
+    assembly is never faked.
 
 No real drive, no network, no external tools needed: the fake
 provider is the seam, and the seam is where honesty lives.
 """
 import sys
+from contextlib import redirect_stdout
+from io import StringIO
 from pathlib import Path
+from unittest import mock
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
@@ -336,6 +343,31 @@ def t_probe_drives_lists_without_opening():
         assert isinstance(d["exists"], bool)
 
 
+def t_cli_rip_missing_backend_exits_3():
+    # Hermetic: force the backend probe to fail; the CLI must refuse
+    # loudly with exit 3 (missing backend), never attempt a rip.
+    from resonance.rip import cli as rip_cli
+    from resonance.rip.secure import RipBackendError
+    with mock.patch.object(
+            rip_cli, "require_backend",
+            side_effect=RipBackendError(
+                "missing backend tool 'cdparanoia' (SIMULATED)")):
+        rc = rip_cli.main(["rip", "--track", "1"])
+    assert rc == 3, rc
+
+
+def t_cli_rip_backends_present_not_yet_implemented_exits_3():
+    # With backends present, per-tool command assembly is deliberately
+    # NOT faked from the CLI: exit 3 carrying the honest message.
+    from resonance.rip import cli as rip_cli
+    buf = StringIO()
+    with mock.patch.object(rip_cli, "require_backend",
+                           return_value="/usr/bin/cdparanoia"):
+        with redirect_stdout(buf):
+            rc = rip_cli.main(["rip", "--track", "1", "--format", "wav"])
+    assert rc == 3, rc
+    assert "not yet implemented" in buf.getvalue(), buf.getvalue()
+
 if __name__ == "__main__":
     check("disc-id deterministic on canned TOC", t_disc_id_deterministic)
     check("disc-id sensitive to TOC changes", t_disc_id_sensitive)
@@ -364,4 +396,8 @@ if __name__ == "__main__":
           t_require_backend_names_missing_tool)
     check("probe_drives lists without opening",
           t_probe_drives_lists_without_opening)
+    check("cli rip: missing backend exits 3",
+          t_cli_rip_missing_backend_exits_3)
+    check("cli rip: backends present exits 3 not-yet-implemented",
+          t_cli_rip_backends_present_not_yet_implemented_exits_3)
     print(f"{PASSED} rip tests passed.")

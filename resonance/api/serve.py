@@ -43,14 +43,14 @@ def main(argv=None):
     except Exception:
         print("error: resonance-serve needs uvicorn: pip install 'resonance[api]'",
               file=sys.stderr)
-        return 2
+        return 3  # 3 = loud refusal: a required backend is missing
 
     from resonance.api.service import create_app, fastapi_available
 
     if not fastapi_available():
         print("error: resonance-serve needs fastapi: pip install 'resonance[api]'",
               file=sys.stderr)
-        return 2
+        return 3  # 3 = loud refusal: a required backend is missing
 
     app = create_app(jobs_dir=args.jobs_dir)
     print(f"resonance-serve: listening on http://{args.host}:{args.port} "

@@ -129,7 +129,7 @@ def cmd_rip(args):
             require_backend("oggenc")
     except RipBackendError as exc:
         print(f"resonance-rip: {exc}", file=sys.stderr)
-        return 2
+        return 3  # 3 = loud refusal: a required backend is missing
     # With the tools present, sector acquisition would be delegated to
     # the backend here (cdparanoia -Z-style batch read into the
     # SecureRip provider seam). The orchestration layer is specified;
@@ -247,7 +247,7 @@ def main(argv=None):
         return args.func(args)
     except RipBackendError as exc:
         print(f"resonance-rip: {exc}", file=sys.stderr)
-        return 2
+        return 3  # 3 = loud refusal: a required backend is missing
 
 
 if __name__ == "__main__":

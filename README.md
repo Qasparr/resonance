@@ -158,8 +158,10 @@ lands on PATH:
 | `resonance-ui` | (any) | validate a skin, run the skinnable TUI |
 
 Every CLI exits 0 on success, 2 on bad arguments, 1 on failure with
-the error printed. Exercised by `tests/test_cli.py` (subprocess,
-`python -m resonance.<mod>.cli`, real artifacts asserted).
+the error printed, and 3 when a required backend is missing (the loud
+refusal: install instructions on stderr, nothing faked). Exercised by
+`tests/test_cli.py` (subprocess, `python -m resonance.<mod>.cli`,
+real artifacts asserted).
 
 ## Roadmap
 

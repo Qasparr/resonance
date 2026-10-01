@@ -10,7 +10,7 @@ Hypothesis: the stems package needs a scriptable front door for the
 Method:     argparse with three subcommands.  status prints the
   DemucsAdapter probe report and whether the rubberband CLI is on PATH.
   separate runs DemucsAdapter.separate() and writes one WAV per stem;
-  when no backend exists it exits 2 with the StemSeparationUnavailable
+  when no backend exists it exits 3 with the StemSeparationUnavailable
   message on stderr -- the honest fallback, visible in the terminal.
   mix builds a StemMixer from --stem name=path arguments, applies
   --volume/--mute/--solo/--tempo flags, renders, and writes the mix
@@ -90,7 +90,7 @@ def cmd_separate(args):
         stems = adapter.separate(args.input, model=args.model)
     except StemSeparationUnavailable as exc:
         print(f"{PROG}: cannot separate -- {exc}", file=sys.stderr)
-        return 2
+        return 3  # 3 = loud refusal: the Demucs backend is missing
     out_dir = Path(args.out)
     out_dir.mkdir(parents=True, exist_ok=True)
     sr = None

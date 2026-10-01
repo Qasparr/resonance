@@ -2,7 +2,7 @@
 # All Rights Reserved, Without Prejudice · CashApp $axoneme
 # SPDX-License-Identifier: AGPL-3.0-only
 """
-resonance/__init__.py -- RESONANCE v0.1.0, a generative audio engine.
+resonance/__init__.py -- RESONANCE v0.2.0, a generative audio engine.
 
 Audio convention (workspace-wide contract):
   * numpy float32 arrays

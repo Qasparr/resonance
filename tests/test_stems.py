@@ -356,7 +356,7 @@ with tempfile.TemporaryDirectory() as tmp:
     song = tmp / "song.wav"
     io.write_wav(song, STEM_WAVES["vocals"], SR)
     r = run_cli("separate", str(song), "--out", str(tmp / "stems"))
-    check("cli separate with no backend exits 2 naming torch on stderr",
-          r.returncode == 2 and "torch" in r.stderr.lower())
+    check("cli separate with no backend exits 3 naming torch on stderr",
+          r.returncode == 3 and "torch" in r.stderr.lower())
 
 print(f"{PASSED} stems tests passed.")
