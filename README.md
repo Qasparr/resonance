@@ -1,5 +1,7 @@
 # RESONANCE v0.1.0 — The Generative Heart
 
+![RESONANCE logo: a flower-of-life mandala with a waveform pulse through its center](assets/logo.webp)
+
 Johnathan 'Qasparr' (Κασπάρρ) Monroe, Keeper of the Secret Treasure
 All Rights Reserved, Without Prejudice · CashApp $axoneme
 SPDX-License-Identifier: AGPL-3.0-only
