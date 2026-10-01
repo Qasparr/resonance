@@ -17,7 +17,7 @@ synthesizer + step sequencer), `abc` (notation parse/save/render),
 hooks), `api` (render-job service), `diagnostics` (real measurements +
 FFT verification).
 
-## v0.2.0 — The Player Half (specified, not implemented)
+## v0.2.0 — The Player Half (implemented)
 
 The daily-driver suite riding on the v0.1.0 engine: cross-platform
 player (play/stream), format converter (all media types, ffmpeg-backed),

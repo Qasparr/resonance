@@ -11,6 +11,7 @@ Method:     re-export the voice callables, the VOICES registry, and the
   sequencer entry points. Nothing here reaches into other subpackages.
 Result:     `from resonance.synth import kick, render_pattern` just works.
 """
+from resonance.synth.arpeggiator import Arpeggiator
 from resonance.synth.sequencer import MAX_SWING, STEPS_PER_BAR, render_pattern, step_times
 from resonance.synth.voices import (
     VOICES,
@@ -27,6 +28,7 @@ __all__ = [
     "VOICES",
     "STEPS_PER_BAR",
     "MAX_SWING",
+    "Arpeggiator",
     "kick",
     "snare",
     "closed_hat",

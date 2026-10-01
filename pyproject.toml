@@ -7,8 +7,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "resonance"
-version = "0.1.0"
-description = "RESONANCE: a generative audio engine -- binaural entrainment tones, 808 drum synthesis, ABC notation, headless visuals, plugins, and a render-job API"
+version = "0.2.0"
+description = "RESONANCE: a generative audio engine and daily-driver player -- binaural entrainment tones, 808 drum synthesis + arpeggiator, ABC 2.1 notation, headless visuals, plugins, render-job API, ffmpeg conversion, ID3v2.4 tagging, lyrics/karaoke, stem separation + mixer, 3D spatial audio, CD ripping, and a skinnable UI"
 readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "AGPL-3.0-only" }
@@ -43,7 +43,8 @@ viz = []                                       # headless SVG frames (stdlib onl
 plugins = []                                   # plugin manager (stdlib only)
 edit = []                                      # core.edit editing primitives (numpy)
 api = ["fastapi", "uvicorn"]                   # render-job HTTP service
-full = ["fastapi", "uvicorn"]                  # every optional backend at once
+tags = ["mutagen"]                           # ID3v2.4 tagging
+full = ["fastapi", "uvicorn", "mutagen"]      # every optional backend at once
 
 [project.urls]
 Homepage = "https://github.com/Qasparr/resonance"
@@ -58,6 +59,14 @@ resonance-abc = "resonance.abc.cli:main"
 resonance-viz = "resonance.viz.cli:main"
 resonance-diag = "resonance.diagnostics.cli:main"
 resonance-edit = "resonance.core.cli:main"
+resonance-play = "resonance.player.cli:main"
+resonance-convert = "resonance.convert.cli:main"
+resonance-tag = "resonance.tags.cli:main"
+resonance-lyrics = "resonance.metadata.cli:main"
+resonance-stems = "resonance.stems.cli:main"
+resonance-spatial = "resonance.spatial.cli:main"
+resonance-rip = "resonance.rip.cli:main"
+resonance-ui = "resonance.ui.cli:main"
 
 [tool.setuptools.packages.find]
 where = ["."]

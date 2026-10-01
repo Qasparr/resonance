@@ -70,6 +70,14 @@ check("t_help_viz", lambda: t_help("viz.cli", "resonance-viz"))
 check("t_help_diag", lambda: t_help("diagnostics.cli", "resonance-diag"))
 check("t_help_edit", lambda: t_help("core.cli", "resonance-edit"))
 check("t_help_serve", lambda: t_help("api.serve", "resonance-serve"))
+check("t_help_play", lambda: t_help("player.cli", "resonance-play"))
+check("t_help_convert", lambda: t_help("convert.cli", "resonance-convert"))
+check("t_help_tag", lambda: t_help("tags.cli", "resonance-tag"))
+check("t_help_lyrics", lambda: t_help("metadata.cli", "resonance-lyrics"))
+check("t_help_stems", lambda: t_help("stems.cli", "resonance-stems"))
+check("t_help_spatial", lambda: t_help("spatial.cli", "resonance-spatial"))
+check("t_help_rip", lambda: t_help("rip.cli", "resonance-rip"))
+check("t_help_ui", lambda: t_help("ui.cli", "resonance-ui"))
 
 
 def is_wav(path):

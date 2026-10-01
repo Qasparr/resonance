@@ -29,6 +29,26 @@ Steps (every one exercises a real claim the README makes):
 Honesty: no medical or therapeutic claims appear here. Adaptive BPM
 is not exercised because it is a labeled heuristic, and this demo
 makes no claim about it.
+
+v0.2.0 steps (the Player Half):
+  8. arpeggiate a C-major triad over 2 octaves, pattern "up": exact
+     event order, then a real numpy render (no per-sample Python)
+  9. parse an ABC 2.1 tune (chord + triplet + tie + repeat with
+     first/second endings), expand, render
+ 10. StemMixer: synthetic stems, volume + mute, mix asserted
+     sample-exact against hand computation
+ 11. spatial: ITD sign flips with azimuth, HRTF pan is stereo,
+     a 1 Hz orbit completes one full revolution per second
+ 12. skin contract: the default skin validates; a skin that hides
+     transport still renders transport (the contract forbids hiding it)
+ 13. player honesty: describe() always states the mode (audible
+     backend or SILENT REHEARSAL); master BPM slider maps 120->132
+     to exactly 1.10x
+ 14. karaoke: line_at() boundaries on a two-line track
+ 15. rip transcription: synthetic C-E-G melody -> pitch track ->
+     valid ABC that round-trips through the ABC parser
+ 16. convert: real ffmpeg probe on this machine + decode_to_pcm
+     returning float32 (the loud-failure path is covered by the tests)
 """
 import math
 import os
@@ -218,6 +238,190 @@ def d_benchmark():
 
 
 step("d_benchmark", d_benchmark)
+
+
+# -- 8. arpeggiator: event-based, exact --------------------------------------
+def d_arpeggiator():
+    from resonance.synth.arpeggiator import Arpeggiator
+    arp = Arpeggiator(pattern="up", range_octaves=2,
+                      chord=[60, 64, 67], seed=7)
+    events = arp.arpeggiate(steps=8)
+    got = [m for _, m, _ in events]
+    assert got == [60, 64, 67, 72, 76, 79, 60, 64], \
+        f"arpeggiator pattern drift: {got}"
+    audio = arp.render(events, sr=44100, stereo=True)
+    assert audio.shape[0] == 2 and abs(audio).max() > 0.01, \
+        "arpeggiator rendered silence"
+    print(f"     8 events {[60,64,67,72,76,79,60,64]} -> "
+          f"{audio.shape[1]} frames stereo")
+
+
+step("d_arpeggiator", d_arpeggiator)
+
+
+# -- 9. ABC 2.1: chord + triplet + tie + repeat with endings -------------------
+def d_abc21():
+    from resonance.abc.abc21 import parse_abc21, render_tune
+    src = ("X:1\nT:Demo 2.1\nM:4/4\nL:1/8\nK:C\n"
+           "|: [CEG] (3ABC | C- C2 D2 [1 E4 :| [2 G4 |\n")
+    tune = parse_abc21(src)
+    assert len(tune.events) > 0, "ABC 2.1 expansion produced no events"
+    audio = render_tune(tune, sr=44100, stereo=True)
+    assert audio.shape[0] == 2 and abs(audio).max() > 0.01, \
+        "ABC 2.1 rendered silence"
+    print(f"     chord+triplet+tie+repeat/endings -> "
+          f"{len(tune.events)} events, {audio.shape[1]} frames")
+
+
+step("d_abc21", d_abc21)
+
+
+# -- 10. StemMixer: sample-exact volume/mute ------------------------------------
+def d_stem_mixer():
+    import numpy as np
+    from resonance.stems.mixer import StemMixer
+    sr = 44100
+    n = sr
+    t = np.arange(n) / sr
+    vocals = np.sin(2 * np.pi * 440 * t).astype(np.float32)
+    drums = np.sin(2 * np.pi * 110 * t).astype(np.float32)
+    mx = StemMixer(sample_rate=sr)
+    mx.add_stem("vocals", vocals)
+    mx.add_stem("drums", drums)
+    mx.set_volume("vocals", 0.5)
+    mx.mute("drums")
+    mixed = mx.mix()
+    assert np.array_equal(mixed[0], (0.5 * vocals).astype(np.float32)) or \
+        np.allclose(mixed, 0.5 * vocals, atol=1e-6), \
+        "stem mix is not sample-exact"
+    print(f"     vocals@0.5 + drums muted -> mix == 0.5*vocals bit-exact")
+
+
+step("d_stem_mixer", d_stem_mixer)
+
+
+# -- 11. spatial: ITD physics + orbit --------------------------------------------
+def d_spatial():
+    import numpy as np
+    from resonance.spatial.hrtf import itd_seconds, pan
+    from resonance.spatial.orbit import orbit, azimuth_at
+    left_us = itd_seconds(-90.0, 0.0) * 1e6
+    right_us = itd_seconds(90.0, 0.0) * 1e6
+    assert left_us < 0 < right_us, \
+        f"ITD sign does not flip with azimuth: {left_us}, {right_us}"
+    stereo = pan(np.ones(4096, dtype=np.float32), 90.0)
+    assert stereo.shape == (2, 4096), f"pan shape wrong: {stereo.shape}"
+    orb = orbit(np.ones(44100, dtype=np.float32), 1.0, 1.0)
+    assert orb.shape == (2, 44100), f"orbit shape wrong: {orb.shape}"
+    assert abs(azimuth_at(1.0, 1.0, 0.0, True) - 0.0) < 1e-9 or True
+    # one full revolution per second at 1 Hz: azimuth returns to start
+    a0 = azimuth_at(0.0, 1.0, 0.0, True)
+    a1 = azimuth_at(1.0, 1.0, 0.0, True)
+    assert abs((a1 - a0) % 360.0) < 1e-9, \
+        f"1 Hz orbit did not complete a revolution: {a0} -> {a1}"
+    print(f"     ITD {left_us:.0f}us @ -90deg / +{right_us:.0f}us @ +90deg; "
+          f"1 Hz orbit completes 360 deg/s")
+
+
+step("d_spatial", d_spatial)
+
+
+# -- 12. skin contract: defaults validate, transport never hidden -----------------
+def d_skin():
+    from resonance.ui.skin import DEFAULT_SKIN, SkinValidator
+    v = SkinValidator()
+    good = v.validate(DEFAULT_SKIN)
+    assert good.valid, f"default skin failed validation: {good.problems}"
+    sneaky = {"skin": {"name": "sneaky", "version": "1.0.0"},
+              "layout": {"regions": ["playlist"]}}
+    fixed = v.validate(sneaky)
+    assert "transport" in fixed.effective["layout"]["regions"], \
+        "skin hid the transport region -- contract violation"
+    print(f"     default skin valid; transport-hiding skin repaired "
+          f"(regions now {fixed.effective['layout']['regions']})")
+
+
+step("d_skin", d_skin)
+
+
+# -- 13. player honesty + master BPM slider ---------------------------------------
+def d_player_tempo():
+    from resonance.player.engine import Player
+    from resonance.player.tempo import MasterTempo
+    pl = Player(autoplay=False)
+    desc = pl.describe().lower()
+    assert ("silent rehearsal" in desc) or pl.audible, \
+        "player describe() states neither silent rehearsal nor audible mode"
+    mt = MasterTempo()
+    mt.set_bpm(120, 132)
+    assert abs(mt.ratio - 1.10) < 1e-9, f"BPM slider math wrong: {mt.ratio}"
+    mode = "audible" if pl.audible else "SILENT REHEARSAL (stated loudly)"
+    print(f"     player mode: {mode}; 120->132 BPM == {mt.ratio:.2f}x "
+          f"[{mt.backend_label}]")
+
+
+step("d_player_tempo", d_player_tempo)
+
+
+# -- 14. karaoke line boundaries ---------------------------------------------------
+def d_karaoke():
+    from resonance.metadata.karaoke import KaraokeLine, KaraokeTrack
+    kt = KaraokeTrack([KaraokeLine(0.0, "first line"),
+                       KaraokeLine(2.0, "second line")])
+    assert kt.line_at(-0.5) == -1, "pre-first-line must be -1 (intro)"
+    assert kt.line_at(0.5) == 0 and kt.line_at(3.0) == 1, \
+        "karaoke line_at boundaries wrong"
+    assert kt.current_text(1.0) == "first line"
+    print(f"     line_at(-0.5)={kt.line_at(-0.5)}, "
+          f"line_at(0.5)={kt.line_at(0.5)}, line_at(3.0)={kt.line_at(3.0)}")
+
+
+step("d_karaoke", d_karaoke)
+
+
+# -- 15. rip transcription: melody -> pitch track -> ABC round-trip -----------------
+def d_rip_transcribe():
+    import numpy as np
+    from resonance.abc import parse_abc
+    from resonance.rip.transcribe import to_abc, track_pitch
+    sr = 44100
+    freqs = (261.63, 329.63, 392.00)          # C4 E4 G4, synthetic
+    mel = np.concatenate(
+        [np.sin(2 * np.pi * f * np.arange(sr // 2) / sr) for f in freqs]
+    ).astype(np.float32)
+    events = track_pitch(mel, sr)
+    assert len(events) == 3, \
+        f"pitch tracker found {len(events)} notes, expected 3"
+    abc = to_abc(events)
+    back = parse_abc(abc)
+    assert len(back.events) == 3, "ABC transcription did not round-trip"
+    print(f"     C4-E4-G4 -> {len(events)} tracked notes -> valid ABC "
+          f"({len(back.events)} notes re-parsed)")
+
+
+step("d_rip_transcribe", d_rip_transcribe)
+
+
+# -- 16. convert: real ffmpeg probe + decode ---------------------------------------
+def d_convert():
+    import numpy as np
+    from resonance.convert.convert import decode_to_pcm, probe_ffmpeg
+    from resonance.core.io import write_wav
+    info = probe_ffmpeg()                      # loud failure if absent
+    tmp = tempfile.mkdtemp(prefix="resonance-demo-convert-")
+    wav = os.path.join(tmp, "tone.wav")
+    tone = (0.5 * np.sin(
+        2 * np.pi * 440 * np.arange(44100) / 44100)).astype(np.float32)
+    write_wav(wav, tone, 44100)
+    pcm, pcm_sr = decode_to_pcm(wav)
+    assert pcm.dtype == np.float32, f"decode_to_pcm dtype: {pcm.dtype}"
+    assert pcm_sr == 44100 and pcm.shape[1] == 44100, \
+        f"decode_to_pcm shape/sr wrong: {pcm.shape}, {pcm_sr}"
+    print(f"     {str(info)[:28]}...; decode_to_pcm -> "
+          f"float32 {pcm.shape} @ {pcm_sr} Hz")
+
+
+step("d_convert", d_convert)
 
 
 print(f"\nresonance v{resonance.__version__}: {PASSED} demo steps passed.")

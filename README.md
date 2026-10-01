@@ -1,4 +1,4 @@
-# RESONANCE v0.1.0 — The Generative Heart
+# RESONANCE v0.2.0 — The Player Half
 
 ![RESONANCE logo: a flower-of-life mandala with a waveform pulse through its center](assets/logo.webp)
 
@@ -83,12 +83,20 @@ resonance-serve --port 8765          # POST /jobs/render, GET /jobs/{id}/downloa
 |---|---|---|
 | `resonance/core` | audio conventions, WAV I/O, note/frequency utils, Solfeggio data, editing primitives (trim/split/splice/mix/fades/normalize/biquad EQ/soft limiter) | test_core, test_edit |
 | `resonance/binaural` | entrainment generator (binaural/monaural/isochronic), session scripts, adaptive BPM | test_binaural |
-| `resonance/synth` | 808 drum voices + step sequencer | test_synth |
-| `resonance/abc` | ABC notation: parse, write, render, built-in tune "The North Gate" | test_abc |
+| `resonance/synth` | 808 drum voices + step sequencer + event-based arpeggiator (up/down/up-down/random/played, octave range, gate, swing) | test_synth, test_arpeggiator |
+| `resonance/abc` | ABC notation: parse, write, render, built-in tune "The North Gate"; full ABC 2.1 (ties, chords, tuplets, grace notes, repeats with first/second endings, multi-voice) | test_abc, test_abc21 |
 | `resonance/viz` | headless mandala frame engine (stdlib SVG) + optional PNG/MP4 backends | test_viz |
 | `resonance/plugins` | plugin discovery, lifecycle, hook registry | test_plugins |
 | `resonance/api` | render-job HTTP service (FastAPI, lazy import) | test_api |
 | `resonance/diagnostics` | real throughput benchmarks + FFT verification | test_diagnostics |
+| `resonance/player` | cross-platform player: transport, playlist, honest backend probe (system players; SILENT REHEARSAL mode when none — always stated, never faked) + master BPM slider engine | test_player |
+| `resonance/convert` | ffmpeg-backed format conversion + decode-to-PCM; loud failure when ffmpeg is absent | test_convert |
+| `resonance/tags` | ID3v2.4 tagging via mutagen (v2.4 asserted on write) | test_tags |
+| `resonance/metadata` | MusicBrainz/LRCLIB metadata + lyrics fetching, karaoke timed-lyrics core | test_metadata |
+| `resonance/stems` | Demucs-adapter stem separation (honest refusal when torch/Demucs absent) + StemMixer: per-stem volume/mute/solo (sample-exact) and per-stem tempo via Rubber Band adapter | test_stems |
+| `resonance/spatial` | 3D audio: parametric HRTF panner, distance/air-absorption model, first-order AmbiX ambisonics, creative orbit effect | test_spatial |
+| `resonance/rip` | CD ripping: TOC/disc-id hashing, honest secure-rip seam, heuristic pitch transcription to MIDI/ABC (labeled transcription, never extraction) | test_rip |
+| `resonance/ui` | skinnable UI honoring `docs/skin-contract.md`: total skin validation, headless TUI, the five contract hooks | test_ui |
 
 Run all suites (script-style; a failure raises, the first red line is
 the diagnosis):
@@ -111,6 +119,20 @@ for t in tests/test_*.py; do python3 "$t"; done
   security. Documented in the service docstring and repeated here.
 - The `/diagnostics/benchmark` endpoint runs a real
   `time.perf_counter` measurement — a stub would fail the build.
+- The player never fakes audible playback: with no system audio
+  backend it runs in SILENT REHEARSAL (real clock, `.audible ==
+  False`) and says so on every surface. The master BPM slider is a
+  Rubber Band adapter when the `rubberband` CLI exists, otherwise a
+  loudly labeled numpy fallback (pitch NOT preserved — rehearsal
+  only); extreme ratios artifact, as with all time-stretching.
+- Stem separation without torch/Demucs is a documented refusal, not
+  an EQ fake. Open models separate 4–6 stems — "isolate the guitar
+  from the piano" is beyond current open tooling and is not claimed.
+- The spatial orbit effect is creative spatialization, not therapy.
+- CD-rip MIDI/ABC output is heuristic pitch **transcription**, not
+  extraction; every surface carries the caveat. Drive-offset
+  databases and AccurateRip verification are documented as NOT
+  implemented.
 
 ## Command-line tools
 
@@ -126,6 +148,14 @@ lands on PATH:
 | `resonance-diag` | (any) | real throughput benchmarks → stdout |
 | `resonance-edit` | (any) | fades/limiter/normalize on a demo tone → `edited.wav` |
 | `resonance-serve` | `[api]` | serves the render-job API (`--help` works without fastapi) |
+| `resonance-play` | (any) | player transport; silent-rehearsal mode when no audio backend |
+| `resonance-convert` | (any) | ffmpeg probe/convert/batch (loud failure without ffmpeg) |
+| `resonance-tag` | `[tags]` | read/write/ensure-v24 ID3 tags |
+| `resonance-lyrics` | (any) | fetch lyrics, karaoke snapshot, identify via MusicBrainz |
+| `resonance-stems` | (any) | separate/mix/status (loud refusal without torch/Demucs) |
+| `resonance-spatial` | (any) | HRTF pan / orbit a file |
+| `resonance-rip` | (any) | TOC hash, backend table, transcribe WAV→ABC |
+| `resonance-ui` | (any) | validate a skin, run the skinnable TUI |
 
 Every CLI exits 0 on success, 2 on bad arguments, 1 on failure with
 the error printed. Exercised by `tests/test_cli.py` (subprocess,
@@ -133,19 +163,23 @@ the error printed. Exercised by `tests/test_cli.py` (subprocess,
 
 ## Roadmap
 
-- **v0.1.0** (this release): the generative heart — everything above.
+- **v0.2.0** (this release): the player half — player, converter,
+  ID3v2.4 tagging, metadata/lyrics/karaoke, stem separation + mixer,
+  3D spatial audio, arpeggiator, full ABC 2.1, CD ripping, skinnable
+  UI honoring `docs/skin-contract.md`. The contract is now a
+  description of shipped software: `resonance/ui` validates and
+  applies it.
+- **v0.1.0**: the generative heart — the v0.1.0 engine
+  (`core`, `binaural`, `synth` voices + sequencer, base `abc`,
+  `viz`, `plugins`, `api`, `diagnostics`).
 - **SaaS later**: `docs/saas-roadmap.md` — the v0.1.0 API ships with
   isolated seams (queue, storage, auth) and the SaaS milestones
   (metered billing, multi-tenancy, async workers) are explicitly
   marked LATER. The seams are the deliverable, not the SaaS.
-- **v0.2.0**: the player half — daily-driver suite on this engine.
-  Specified in `docs/roadmap.md`, including the `resonance/rip/`
-  CD-ripping spec (honestly labeled transcription, never silent
-  guessing) and the `docs/skin-contract.md` v0.2.0 UI contract.
+- **v0.2.0**: (this release, above)
 - **v0.3.0**: the studio shell — the multitrack timeline editor UI
   (primitives already shipped in `core/edit.py`) plus the
   `resonance/burn/` disc-burning and DVD-Video authoring spec
   (honest backend orchestration — never a fake "burn").
-
-No skinnable player exists yet: `docs/skin-contract.md` is a contract
-for the v0.2.0 UI, not a description of shipped software.
+- **v0.4.0**: the AI wing — adapter-based generative/assistive AI
+  (track generation, transcription), specified in `docs/roadmap.md`.
