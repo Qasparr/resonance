@@ -1,0 +1,64 @@
+# Johnathan 'Qasparr' (Κασπάρρ) Monroe, Keeper of the Secret Treasure
+# All Rights Reserved, Without Prejudice · CashApp $axoneme
+# SPDX-License-Identifier: AGPL-3.0-only
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "resonance"
+version = "0.1.0"
+description = "RESONANCE: a generative audio engine -- binaural entrainment tones, 808 drum synthesis, ABC notation, headless visuals, plugins, and a render-job API"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "AGPL-3.0-only" }
+authors = [
+    { name = "Johnathan 'Κασπάρρ' Monroe", email = "root@axoneme.org" },
+]
+keywords = ["audio", "binaural", "synthesis", "generative", "abc-notation",
+            "dsp", "visualization"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: GNU Affero General Public License v3",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Multimedia :: Sound/Audio :: Sound Synthesis",
+]
+# The one runtime dependency: everything DSP runs on numpy. Backends
+# (matplotlib, ffmpeg, fastapi/uvicorn) stay optional behind lazy
+# imports so each module installs standalone.
+dependencies = [
+    "numpy",
+]
+
+[project.optional-dependencies]
+# Per-module extras: install exactly the pillar you want.
+binaural = []                                  # binaural tones (numpy only)
+synth = []                                     # 808 synth + sequencer (numpy only)
+abc = []                                       # ABC notation (stdlib + numpy)
+viz = []                                       # headless SVG frames (stdlib only)
+plugins = []                                   # plugin manager (stdlib only)
+edit = []                                      # core.edit editing primitives (numpy)
+api = ["fastapi", "uvicorn"]                   # render-job HTTP service
+full = ["fastapi", "uvicorn"]                  # every optional backend at once
+
+[project.urls]
+Homepage = "https://github.com/Qasparr/resonance"
+Repository = "https://github.com/Qasparr/resonance"
+License = "https://www.gnu.org/licenses/agpl-3.0.html"
+
+[project.scripts]
+resonance-serve = "resonance.api.serve:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["resonance*"]
+
+[tool.setuptools.package-data]
+"*" = ["*.md"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
