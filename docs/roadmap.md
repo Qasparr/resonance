@@ -36,6 +36,24 @@ with pitch preserved, via the Rubber Band time-stretch adapter
 (documented quality caveats; extreme settings artifact, as with all
 time-stretching). Skinnable UI
 honoring `docs/skin-contract.md`;
+
+### `resonance/spatial/` — 3D spatial audio (v0.2.0 module, SPEC ONLY)
+
+**Purpose.** Place any stem, synth voice, or entrainment channel in
+3D space around the listener's head.
+
+**Design.** HRTF-based binaural panner (configurable head model;
+measured HRTF sets loadable where available), distance/air-absorption
+model, first-order ambisonic encode/decode for speaker arrays. Stems
+from the stem mixer are positionable — the drum kit behind you, the
+vocal in front — and entrainment sessions can orbit the beat around
+the head (documented as a creative/spatialization feature, not a
+therapeutic claim).
+
+**Arpeggiator** (extends `resonance/synth/` in v0.2.0): configurable
+range (octaves), patterns (up/down/up-down/random/played order), gate
+length, and swing; event-based implementation (no per-sample Python
+loops) so it stays efficient at high note densities.
 extensible through the `resonance/plugins/` hook system. Full ABC 2.1
 support in `resonance/abc/` (ties, chords, tuplets, grace notes,
 repeat expansion with first/second endings, multi-voice) — v0.1.0
@@ -134,3 +152,35 @@ trade-off.
 **Honest backend story.** This module orchestrates and verifies system tools — ffmpeg, dvdauthor, growisofs/wodim — it does NOT reimplement MPEG-2 encoding or disc burning from scratch, and must never claim to. Backends are probed at runtime; an absent backend produces a loud, specific failure naming the missing tool and how to install it — never a silent no-op, never a fake "burn."
 
 **Non-goals.** Blu-ray authoring (later roadmap), CSS/DRM circumvention (never).
+
+## v0.4.0 — The AI Wing (roadmap)
+
+Not out of scope — but it is its own milestone, because AI models are
+guests, not residents: gigabytes of weights, torch/transformers
+dependencies, and a GPU for sane speeds. The wing is designed now so
+the seams are clean later.
+
+### `resonance/ai/` — generative and assistive AI (v0.4.0 modules, SPEC ONLY)
+
+**`generate` — full-length and extended tracks.** Adapter-based
+generation via open models (MusicGen / AudioLDM / Stable Audio Open
+tradition): text/melody-conditioned generation of sections
+(intro/verse/chorus/outro), then honest arrangement — sections
+rendered and joined with the v0.1.0 editing primitives
+(crossfades, the splice engine), so "extended length" is composed
+structure, not a looped 30 seconds. Model outputs are labeled as
+generated in metadata; provenance is never hidden.
+
+**`transcribe` — speech/music transcription.** Whisper-adapter for
+transcribing audio to text/lyrics (feeds the karaoke display and ABC
+transcription aids); pitch-tracking feeds the auto-tune module.
+
+**`image` / `video` (later in the wing).** Cover-art and visualizer
+imagery generation wired into `resonance/viz/` palettes — specified
+after the audio AI lands, not before.
+
+**Honest hardware story.** Models download on first use (never
+bundled — the repo stays lean); GPU strongly recommended, CPU fallback
+documented as slow; every adapter degrades to a loud skip when its
+model or torch is absent. No cloud AI dependency is ever required —
+the wing runs offline by design, which is also the privacy story.
