@@ -52,6 +52,12 @@ License = "https://www.gnu.org/licenses/agpl-3.0.html"
 
 [project.scripts]
 resonance-serve = "resonance.api.serve:main"
+resonance-binaural = "resonance.binaural.cli:main"
+resonance-808 = "resonance.synth.cli:main"
+resonance-abc = "resonance.abc.cli:main"
+resonance-viz = "resonance.viz.cli:main"
+resonance-diag = "resonance.diagnostics.cli:main"
+resonance-edit = "resonance.core.cli:main"
 
 [tool.setuptools.packages.find]
 where = ["."]

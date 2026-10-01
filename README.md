@@ -110,9 +110,32 @@ for t in tests/test_*.py; do python3 "$t"; done
 - The `/diagnostics/benchmark` endpoint runs a real
   `time.perf_counter` measurement — a stub would fail the build.
 
+## Command-line tools
+
+Every module is also an executable — install the extra and the tool
+lands on PATH:
+
+| Command | Extra | What it does with no args |
+|---|---|---|
+| `resonance-binaural` | `[binaural]` | 10 Hz alpha on 528 Hz → `binaural.wav` |
+| `resonance-808` | `[synth]` | built-in 808 groove → `pattern.wav` |
+| `resonance-abc` | `[abc]` | "The North Gate" tune → `north-gate.wav` |
+| `resonance-viz` | `[viz]` | mandala SVG frames → `frames/` |
+| `resonance-diag` | (any) | real throughput benchmarks → stdout |
+| `resonance-edit` | (any) | fades/limiter/normalize on a demo tone → `edited.wav` |
+| `resonance-serve` | `[api]` | serves the render-job API (`--help` works without fastapi) |
+
+Every CLI exits 0 on success, 2 on bad arguments, 1 on failure with
+the error printed. Exercised by `tests/test_cli.py` (subprocess,
+`python -m resonance.<mod>.cli`, real artifacts asserted).
+
 ## Roadmap
 
 - **v0.1.0** (this release): the generative heart — everything above.
+- **SaaS later**: `docs/saas-roadmap.md` — the v0.1.0 API ships with
+  isolated seams (queue, storage, auth) and the SaaS milestones
+  (metered billing, multi-tenancy, async workers) are explicitly
+  marked LATER. The seams are the deliverable, not the SaaS.
 - **v0.2.0**: the player half — daily-driver suite on this engine.
   Specified in `docs/roadmap.md`, including the `resonance/rip/`
   CD-ripping spec (honestly labeled transcription, never silent
