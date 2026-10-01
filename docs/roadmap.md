@@ -25,7 +25,12 @@ ID3v2.4 tagging (mutagen), automatic metadata + lyrics fetching
 (LRCLIB/MusicBrainz) with karaoke display, and stem separation
 (vocal/instrumental isolation via a Demucs adapter with a documented
 honest fallback). Skinnable UI honoring `docs/skin-contract.md`;
-extensible through the `resonance/plugins/` hook system.
+extensible through the `resonance/plugins/` hook system. Full ABC 2.1
+support in `resonance/abc/` (ties, chords, tuplets, grace notes,
+repeat expansion with first/second endings, multi-voice) — v0.1.0
+covered the common core; v0.2.0 completes the standard, with the
+parser continuing to raise loudly on anything still unsupported
+rather than rendering it wrong.
 
 ### `resonance/rip/` — CD ripping (v0.2.0 module, SPEC ONLY)
 
