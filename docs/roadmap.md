@@ -96,7 +96,7 @@ verify, it reports — never a silent guess.
 network CD databases beyond MusicBrainz/CDDB, real-time rip
 visualization (that belongs to `viz` in a later release).
 
-## v0.3.0 — The Studio Shell (roadmap)
+## v0.3.0 — The Studio Shell (implemented)
 
 The full multitrack timeline editor UI — the Audacity pillar made
 visible — driven by the sample-accurate primitives already delivered
@@ -104,13 +104,13 @@ in v0.1.0's `resonance/core/edit.py` (trim/split/splice/mix/fades/
 normalize/biquad/limiter/effects chain). The primitives are the
 v0.1.0 deliverable; the timeline UI that drives them is v0.3.0.
 
-### Pitch correction — auto-tune (v0.3.0 module, SPEC ONLY)
+### Pitch correction — auto-tune (v0.3.0 module, implemented)
 
 **Purpose.** Correct off-pitch vocals/instruments, or apply the hard-tune
 effect as a creative choice.
 
 **Design.** Pitch detection (YIN/autocorrelation, CREPE-neural as an
-optional upgrade) → pitch-shift the segments toward the target scale
+optional upgrade — not taken; pure numpy, no new dependency) → pitch-shift the segments toward the target scale
 via a phase-vocoder / Rubber Band adapter with formant awareness.
 Two modes: corrective (gentle, transparent) and effect (hard snap, the
 Cher/T-Pain sound — ironically the easier mode to do well).
@@ -121,7 +121,7 @@ knows. The module reports a per-segment confidence and correction
 amount so the user sees what was changed and by how much — no silent
 "enhancement."
 
-### Timing quantization — snap to grid (v0.3.0 module, SPEC ONLY)
+### Timing quantization — snap to grid (v0.3.0 module, implemented)
 
 **Purpose.** Fix tempo/timing imperfections in measures, bars, and
 vocals so the result sounds crisp instead of garbled.
@@ -139,7 +139,7 @@ Vocal timing gets onset-nudging, not sample-surgery; the strength
 slider and confidence readouts keep the user in control of the
 trade-off.
 
-### `resonance/burn/` — disc burning and DVD-Video authoring (v0.3.0 module, SPEC ONLY)
+### `resonance/burn/` — disc burning and DVD-Video authoring (v0.3.0 module, implemented)
 
 **Purpose.** Get finished audio and video onto physical media: audio CDs, data discs, and authored DVD-Video.
 

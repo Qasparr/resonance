@@ -7,8 +7,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "resonance"
-version = "0.2.0"
-description = "RESONANCE: a generative audio engine and daily-driver player -- binaural entrainment tones, 808 drum synthesis + arpeggiator, ABC 2.1 notation, headless visuals, plugins, render-job API, ffmpeg conversion, ID3v2.4 tagging, lyrics/karaoke, stem separation + mixer, 3D spatial audio, CD ripping, and a skinnable UI"
+version = "0.3.0"
+description = "RESONANCE: a generative audio engine and daily-driver player -- binaural entrainment tones, 808 drum synthesis + arpeggiator, ABC 2.1 notation, headless visuals, plugins, render-job API, ffmpeg conversion, ID3v2.4 tagging, lyrics/karaoke, stem separation + mixer, 3D spatial audio, CD ripping, auto-tune, timing quantization, disc burning + DVD authoring, and a skinnable UI"
 readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "AGPL-3.0-only" }
@@ -40,11 +40,15 @@ binaural = []                                  # binaural tones (numpy only)
 synth = []                                     # 808 synth + sequencer (numpy only)
 abc = []                                       # ABC notation (stdlib + numpy)
 viz = []                                       # headless SVG frames (stdlib only)
+pitch = []                                      # auto-tune (numpy only)
+quantize = []                                   # timing quantization (numpy only)
+burn = []                                       # disc burning / DVD authoring (orchestrates system tools)
 plugins = []                                   # plugin manager (stdlib only)
 edit = []                                      # core.edit editing primitives (numpy)
 api = ["fastapi", "uvicorn"]                   # render-job HTTP service
 tags = ["mutagen"]                           # ID3v2.4 tagging
 full = ["fastapi", "uvicorn", "mutagen"]      # every optional backend at once
+studio = []                                     # v0.3.0 Studio Shell: pitch + quantize + burn (numpy only)
 
 [project.urls]
 Homepage = "https://github.com/Qasparr/resonance"
@@ -67,6 +71,9 @@ resonance-stems = "resonance.stems.cli:main"
 resonance-spatial = "resonance.spatial.cli:main"
 resonance-rip = "resonance.rip.cli:main"
 resonance-ui = "resonance.ui.cli:main"
+resonance-tune = "resonance.pitch.cli:main"
+resonance-quantize = "resonance.quantize.cli:main"
+resonance-burn = "resonance.burn.cli:main"
 
 [tool.setuptools.packages.find]
 where = ["."]

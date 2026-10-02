@@ -1,4 +1,4 @@
-# RESONANCE v0.2.0 — The Player Half
+# RESONANCE v0.3.0 — The Studio Shell
 
 ![RESONANCE logo: a flower-of-life mandala with a waveform pulse through its center](assets/logo.webp)
 
@@ -165,7 +165,7 @@ real artifacts asserted).
 
 ## Roadmap
 
-- **v0.2.0** (this release): the player half — player, converter,
+- **v0.2.0**: the player half — player, converter,
   ID3v2.4 tagging, metadata/lyrics/karaoke, stem separation + mixer,
   3D spatial audio, arpeggiator, full ABC 2.1, CD ripping, skinnable
   UI honoring `docs/skin-contract.md`. The contract is now a
@@ -178,10 +178,13 @@ real artifacts asserted).
   isolated seams (queue, storage, auth) and the SaaS milestones
   (metered billing, multi-tenancy, async workers) are explicitly
   marked LATER. The seams are the deliverable, not the SaaS.
-- **v0.2.0**: (this release, above)
-- **v0.3.0**: the studio shell — the multitrack timeline editor UI
-  (primitives already shipped in `core/edit.py`) plus the
-  `resonance/burn/` disc-burning and DVD-Video authoring spec
-  (honest backend orchestration — never a fake "burn").
+- **v0.2.0**: the player half (shipped; above)
+- **v0.3.0** (this release): the studio shell — auto-tune
+  (`resonance/pitch/`: YIN detection, phase-vocoder pitch shift,
+  corrective/effect modes with per-segment confidence), timing
+  quantization (`resonance/quantize/`: spectral-flux onset detection,
+  slice/warp onto a beat grid, 0-100% strength), and disc burning +
+  DVD-Video authoring (`resonance/burn/`: honest orchestration of
+  ffmpeg, dvdauthor, growisofs/wodim — never a fake "burn").
 - **v0.4.0**: the AI wing — adapter-based generative/assistive AI
   (track generation, transcription), specified in `docs/roadmap.md`.
