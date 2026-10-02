@@ -2,7 +2,7 @@
 # All Rights Reserved, Without Prejudice · CashApp $axoneme
 # SPDX-License-Identifier: AGPL-3.0-only
 """
-resonance/__init__.py -- RESONANCE v0.3.0, a generative audio engine.
+resonance/__init__.py -- RESONANCE v0.4.0, a generative audio engine.
 
 Audio convention (workspace-wide contract):
   * numpy float32 arrays
@@ -13,7 +13,7 @@ This file stays light: version strings only. Heavy imports live in the
 subpackages so importing resonance never pays for numpy up front.
 """
 
-__version__ = "0.3.0"
+__version__ = "0.4.0"
 API_VERSION = "1.0"
 
 __all__ = ["__version__", "API_VERSION"]

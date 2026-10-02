@@ -153,14 +153,55 @@ trade-off.
 
 **Non-goals.** Blu-ray authoring (later roadmap), CSS/DRM circumvention (never).
 
-## v0.4.0 — The AI Wing (roadmap)
+## v0.4.0 — The AI Wing (implemented)
 
-Not out of scope — but it is its own milestone, because AI models are
-guests, not residents: gigabytes of weights, torch/transformers
-dependencies, and a GPU for sane speeds. The wing is designed now so
-the seams are clean later.
+AI models are guests, not residents: gigabytes of weights,
+torch/transformers dependencies, and a GPU for sane speeds. The
+wing is adapter-shaped -- every model sits behind a probe that
+reports exactly what is present and fails LOUDLY (exit 3, the
+repo-wide missing-backend standard) when it is not.
 
-### `resonance/ai/` — generative and assistive AI (v0.4.0 modules, SPEC ONLY)
+Two guests live in the wing, and the boundary between them is
+explicit:
+
+1. **Local guests** (offline by design, the privacy story):
+   `resonance/ai/generate.py` (MusicGen/AudioLDM tradition --
+   text/melody-conditioned section rendering; sections are then
+   honestly arranged with the v0.1.0 editing primitives, so
+   "extended length" is composed structure, not a looped 30
+   seconds) and `resonance/ai/transcribe.py` (Whisper tradition,
+   feeding the karaoke display and ABC transcription aids).
+   Models download on first use, never bundled; GPU recommended,
+   CPU fallback documented as slow. Until torch + weights exist,
+   both adapters refuse with ModelNotAvailable naming the exact
+   missing pieces -- never a fake transcript, never fake audio.
+   Model outputs are labeled generated in provenance; provenance
+   is never hidden.
+
+2. **The cloud guest** (opt-in, never required): the Gemini API
+   (gemini-3.8-flash, extended thinking, code execution) powers
+   three features -- AI-assisted mastering advice over MEASURED
+   numbers (never the audio itself), freeform natural-language
+   parsing, and composition ideas (lyrics/arrangement notes).
+   The key arrives at runtime (explicit arg or GEMINI_API_KEY),
+   is held in memory only, never written to disk or logged; no
+   key means a loud GeminiKeyMissing before any byte leaves the
+   machine. The wing never phones home silently.
+
+Between them, the deterministic core that needs neither guest:
+`resonance/ai/analyze.py` (peak/RMS/crest/centroid/width/
+clipping -- the honest numbers the AI reasons about; loudness
+labeled RMS, NOT LUFS), `resonance/ai/master.py`
+(rule-based auto_chain from measurements), `resonance/ai/
+command.py` (local NL parser for the dozen common moves --
+"make it darker", "tighten the timing at 120 bpm" -- mapped to
+real engine ops with per-action reports; unknown phrasing is
+refused, never guessed), and `resonance/ai/compose.py`
+(theory-correct chord progressions, seeded melodies, rendered
+808 drum patterns). CLI: `resonance-ai` (analyze, advise, do,
+compose, probe).
+
+### `resonance/ai/` — generative and assistive AI (v0.4.0 modules, implemented)
 
 **`generate` — full-length and extended tracks.** Adapter-based
 generation via open models (MusicGen / AudioLDM / Stable Audio Open

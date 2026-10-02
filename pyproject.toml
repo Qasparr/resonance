@@ -7,8 +7,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "resonance"
-version = "0.3.0"
-description = "RESONANCE: a generative audio engine and daily-driver player -- binaural entrainment tones, 808 drum synthesis + arpeggiator, ABC 2.1 notation, headless visuals, plugins, render-job API, ffmpeg conversion, ID3v2.4 tagging, lyrics/karaoke, stem separation + mixer, 3D spatial audio, CD ripping, auto-tune, timing quantization, disc burning + DVD authoring, and a skinnable UI"
+version = "0.4.0"
+description = "RESONANCE: a generative audio engine and daily-driver player -- binaural entrainment tones, 808 drum synthesis + arpeggiator, ABC 2.1 notation, headless visuals, plugins, render-job API, ffmpeg conversion, ID3v2.4 tagging, lyrics/karaoke, stem separation + mixer, 3D spatial audio, CD ripping, auto-tune, timing quantization, disc burning + DVD authoring, a skinnable UI, and the AI Wing (Gemini-assisted mastering, natural-language control, composition helpers, local-model adapters)"
 readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "AGPL-3.0-only" }
@@ -49,6 +49,7 @@ api = ["fastapi", "uvicorn"]                   # render-job HTTP service
 tags = ["mutagen"]                           # ID3v2.4 tagging
 full = ["fastapi", "uvicorn", "mutagen"]      # every optional backend at once
 studio = []                                     # v0.3.0 Studio Shell: pitch + quantize + burn (numpy only)
+ai = []                                         # v0.4.0 AI Wing (numpy only; Gemini key at runtime, torch optional)
 
 [project.urls]
 Homepage = "https://github.com/Qasparr/resonance"
@@ -74,6 +75,7 @@ resonance-ui = "resonance.ui.cli:main"
 resonance-tune = "resonance.pitch.cli:main"
 resonance-quantize = "resonance.quantize.cli:main"
 resonance-burn = "resonance.burn.cli:main"
+resonance-ai = "resonance.ai.cli:main"
 
 [tool.setuptools.packages.find]
 where = ["."]
